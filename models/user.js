@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../db/index');
+const bcrypt = require('bcrypt');
 
 const User = sequelize.define('User', {
   user_id: {
@@ -48,7 +49,21 @@ const User = sequelize.define('User', {
     allowNull: false,
     unique: true,
   },
+  password: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
 });
 
-module.exports = User;
+// Hash the password before saving to the database
+User.beforeCreate(async (user) => {
+  const salt = await bcrypt.genSalt(10);
+  user.password = await bcrypt.hash(user.password, salt);
+});
 
+// Custom method to check the entered password during login
+User.prototype.validPassword = async function (password) {
+  return await bcrypt.compare(password, this.password);
+};
+
+module.exports = User;

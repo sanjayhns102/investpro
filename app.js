@@ -11,7 +11,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(routes);
 
 // Sync the models with the database
-sequelize.sync().then(() => {
+sequelize.sync({ alter: true }).then(() => {
   console.log('Database & tables created!');
 }).catch(err => {
   console.error('Error while creating database', err);
